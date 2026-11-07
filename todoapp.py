@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""A small in-memory todo list with a Tkinter interface."""
+"""A small todo list with a Tkinter interface."""
+
+from pathlib import Path
 
 import tkinter as tk
 from tkinter import ttk
@@ -11,6 +13,7 @@ class TodoApp:
         self.root.title("Todo List")
         self.root.minsize(360, 280)
         self.todos = []
+        self.todo_file = Path.cwd() / ".todo"
 
         main = ttk.Frame(root, padding=16)
         main.pack(fill="both", expand=True)
@@ -48,7 +51,16 @@ class TodoApp:
 
         self.status = ttk.Label(main, text="Add a task to get started.", anchor="w")
         self.status.pack(fill="x", pady=(10, 0))
+        self.load_todos()
+        self.refresh()
         self.task_entry.focus_set()
+
+    def load_todos(self):
+        if self.todo_file.exists():
+            self.todos = [[task, False] for task in self.todo_file.read_text().splitlines()]
+
+    def save_todos(self):
+        self.todo_file.write_text("\n".join(task for task, _done in self.todos))
 
     def add_task(self, _event=None):
         task = self.task_entry.get().strip()
@@ -56,6 +68,7 @@ class TodoApp:
             self.status.config(text="Enter a task first.")
             return "break"
         self.todos.append([task, False])
+        self.save_todos()
         self.task_entry.delete(0, tk.END)
         self.refresh()
         self.task_list.selection_clear(0, tk.END)
@@ -71,6 +84,7 @@ class TodoApp:
             return
         index = selection[0]
         self.todos[index][1] = not self.todos[index][1]
+        self.save_todos()
         self.refresh()
         self.task_list.selection_set(index)
         state = "Completed" if self.todos[index][1] else "Reopened"
@@ -82,6 +96,7 @@ class TodoApp:
             self.status.config(text="Select a task to remove.")
             return
         task, _done = self.todos.pop(selection[0])
+        self.save_todos()
         self.refresh()
         self.status.config(text=f"Removed: {task}")
 

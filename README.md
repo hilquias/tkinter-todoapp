@@ -1,6 +1,6 @@
 # Todo List
 
-A small desktop todo list built with Python's Tkinter GUI toolkit. Tasks are kept in memory for the current session and are cleared when the app closes.
+A small desktop todo list built with Python's Tkinter GUI toolkit. Tasks are saved in a `.todo` text file in the directory where you run the app, with one task per line.
 
 ## Requirements
 
